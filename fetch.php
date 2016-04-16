@@ -49,7 +49,7 @@ function fetchPage($r,$f,$m,$mode) {
         $out = "[".reverseString($output)."]";
     } else if($mode == "raw") {
         $out = $c[0];
-        //$output = base64_encode($c[0]);
+        $output = base64_encode($c[0]);
     } else if ($mode == "script") {
         $output = base64_encode($c[0]);
         $out = 'eval(Base64.decode("'.$output.'"));';
