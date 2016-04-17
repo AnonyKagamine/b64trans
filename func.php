@@ -1,23 +1,22 @@
 <?php
 function access_url($url) {
-    $d = "";
-    $fo = fopen($url,'rb');
-    if($fo){
-        while(!feof($fo)) {
-            $d .= fgets($fo);
+    $oCurl = curl_init();
+    curl_setopt($oCurl,CURLOPT_URL,$url);
+    curl_setopt($oCurl, CURLOPT_HEADER, true);
+    curl_setopt($oCurl, CURLOPT_RETURNTRANSFER,1);
+    curl_setopt($oCurl, CURLOPT_POST, false);
+    $sContent = curl_exec($oCurl);
+    $headerSize = curl_getinfo($oCurl, CURLINFO_HEADER_SIZE);
+    $header = substr($sContent, 0, $headerSize);
+    curl_close($oCurl);
+    $d = substr($sContent,$headerSize+1);
+    $headArr = explode("\r\n", $header);
+    foreach ($headArr as $loop) {
+        if(stripos($loop, "Content-type") !== false){
+            $ContentType = trim(substr($loop, 13));
         }
     }
-    fclose($fo);
-    @$nn = implode("|",$http_response_headers);
-    @$hrh = explode("|",$nn);
-    unset($nn);
-    foreach ($hrh as $aa)
-    {
-        if (stristr($aa,"Content-Type:"))
-        {
-            $ContentType = substr($aa,13);
-        }
-    }
+
     return array($d,$ContentType);
 } 
 function gzgetcont($f) {
