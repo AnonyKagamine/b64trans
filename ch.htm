@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8"></meta>
+<script src="base64.js"></script>
+<script src="browser.js"></script>
+<script>
+function onc(){
+    var ur = document.getElementById("target").value;
+    var u = reverseString(Base64.encodeURI(ur));
+      document.getElementById("f").href = "fetch.php?mode=loader&meth=get&url=" + u;
+    }
+</script>
+</head>
+<body>
+<input type="text" id="target"></input>
+<button id="van" onclick="onc()">Change!</button>
+<br>
+<a href="2333" id="f">B64Trans!</a>
+</body>
+</html>
