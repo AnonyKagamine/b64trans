@@ -8,17 +8,10 @@ function access_url($url) {
         }
     }
     fclose($fo);
-    @$nn = implode("|",$http_response_headers);
-    @$hrh = explode("|",$nn);
+    //@$nn = implode("|",$http_response_header);
+    //@$hrh = explode("|",$nn);
     unset($nn);
-    foreach ($hrh as $aa)
-    {
-        if (stristr($aa,"Content-Type:"))
-        {
-            $ContentType = substr($aa,13);
-        }
-    }
-    return array($d,$ContentType);
+    return array($d,$http_response_header);
 } 
 function gzgetcont($f) {
     $d = "";
@@ -45,15 +38,20 @@ function urlsafe_b64decode($string) {
     }
     return base64_decode($data);
 }
-function reverseString($s)
+function getheader($headersArray,$header)
 {
-    $oldStrLength = strlen($s);
-    $newstr = "";
-    for ($i=0;$i<$oldStrLength;$i++)
-    {
-        $item = $s[$oldStrLength-$i-1];
-        $newstr .= $item;
+    $length = strlen($header);
+    $headerValue = "";
+    foreach ($headersArray as $loop) {
+        if(stripos($loop,$header) !== false){
+            $headerValue = trim(substr($loop, 13));
+            return $headerValue;
+        }
     }
-    return $newstr;
+    return $headerValue;
+}
+if (!file_exists(CACHING_DICTIONARY))
+{
+    mkdir(CACHING_DICTIONARY);
 }
 ?>
