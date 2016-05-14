@@ -2,6 +2,7 @@
 define("ENABLE_CACHE",1);
 define("GZ_WRITE_MODE","w7");
 define("CACHING_DICTIONARY",'cached');
+define("USING_CURL",false);
 require "func.php";
 $rawRequest = $_REQUEST["url"];
 $reqm = $_REQUEST["meth"];

@@ -1,5 +1,5 @@
 <?php
-function access_url($url) {
+function access_url_fopen($url) {
     $d = "";
     $fo = fopen($url,'rb');
     if($fo){
@@ -12,7 +12,26 @@ function access_url($url) {
     //@$hrh = explode("|",$nn);
     unset($nn);
     return array($d,$http_response_header);
-} 
+}
+function access_url_curl($url) {
+    $oCurl = curl_init();
+    curl_setopt($oCurl,CURLOPT_URL,$url);
+    curl_setopt($oCurl, CURLOPT_HEADER, true);
+    curl_setopt($oCurl, CURLOPT_RETURNTRANSFER,1);
+    curl_setopt($oCurl, CURLOPT_POST, false);
+    $sContent = curl_exec($oCurl);
+    $headerSize = curl_getinfo($oCurl, CURLINFO_HEADER_SIZE);
+    $header = substr($sContent, 0, $headerSize);
+    curl_close($oCurl);
+    $d = substr($sContent,$headerSize+1);
+    $headArr = explode("\r\n", $header);
+    return array($d,$headArr);
+}
+if (USING_CURL) {
+    function access_url($url) {return access_url_curl($url);}
+} else {
+    function access_url($url) {return access_url_fopen($url);}
+}
 function gzgetcont($f) {
     $d = "";
     $fo = gzopen($f,'r');
@@ -44,7 +63,7 @@ function getheader($headersArray,$header)
     $headerValue = "";
     foreach ($headersArray as $loop) {
         if(stripos($loop,$header) !== false){
-            $headerValue = trim(substr($loop, 13));
+            $headerValue = trim(substr($loop, $length));
             return $headerValue;
         }
     }
