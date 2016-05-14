@@ -12,6 +12,7 @@ function access_url_fopen($url) {
     //@$hrh = explode("|",$nn);
     unset($nn);
     return array($d,$http_response_header);
+<<<<<<< HEAD
 }
 function access_url_curl($url) {
     $oCurl = curl_init();
@@ -32,6 +33,9 @@ if (USING_CURL) {
 } else {
     function access_url($url) {return access_url_fopen($url);}
 }
+=======
+} 
+>>>>>>> master
 function gzgetcont($f) {
     $d = "";
     $fo = gzopen($f,'r');
@@ -63,7 +67,11 @@ function getheader($headersArray,$header)
     $headerValue = "";
     foreach ($headersArray as $loop) {
         if(stripos($loop,$header) !== false){
+<<<<<<< HEAD
             $headerValue = trim(substr($loop, $length));
+=======
+            $headerValue = trim(substr($loop, 13));
+>>>>>>> master
             return $headerValue;
         }
     }

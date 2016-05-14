@@ -1,4 +1,4 @@
-﻿function reverseString(instr) {
+function reverseString(instr) {
     var newstr = "";
     for (var i=instr.length;i>0;i--)
     {
@@ -118,7 +118,7 @@ function changeScripts(fetchername,currentURL,hc,parseFunc)
     //The same as changeSrc.But it is String Oriented.
     var parsedCode = new String("");
     //var hc = new String(htmlcode);
-    var EnableScripts = true;
+    var EnableParsing = true;
     do
     {
         do{
@@ -127,7 +127,7 @@ function changeScripts(fetchername,currentURL,hc,parseFunc)
         } while(!index2 > index1);
         var Tag = hc.slice(index1,index2 + 1);
         var beforeTag = hc.slice(0,index1);
-        if (EnableScripts) {
+        if (EnableParsing) {
             var parsedTag = parseFunc(Tag,fetchername,currentURL);
         } else {
             var newTag = parseFunc(Tag,fetchername,currentURL);
