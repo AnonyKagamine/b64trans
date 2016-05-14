@@ -1,12 +1,14 @@
 <?php
 define("ENABLE_CACHE",1);
 define("GZ_WRITE_MODE","w7");
+define("CACHING_DICTIONARY",'cached');
+define("USING_CURL",false);
 require "func.php";
 $rawRequest = $_REQUEST["url"];
 $reqm = $_REQUEST["meth"];
 $reqmode = $_REQUEST["mode"];
 $h = "http://".$_SERVER["HTTP_HOST"].$_SERVER["PHP_SELF"];
-//header("Cache-control: max-age=600");
+//header("Cache-control: max-age=1200");
 //header("Transfer-Encoding: utf-8");
 
 function readCache($fn,$mode) {
@@ -17,10 +19,15 @@ function readCache($fn,$mode) {
     $cont = substr($content,$index1,$index2-$index1);
     $index3 = strpos($content,"(") + 1;
     $index4 = strpos($content,")");
-    $ContentType = substr($content,$index3,$index4-$index3);
+    $jsonStr = substr($content,$index3,$index4-$index3);
+    $arrayData = json_decode($jsonStr,true);
+    $ContentType = $arrayData["Content-type"];
+    $Filename = $arrayData["Filename"];
     header("Content-type: ".$ContentType,true);
+    header("Filename: ".$Filename,true);
     if ($mode == "enc") {
-        print '['.reverseString($cont).']';
+        print '['.strrev($cont).']';
+        print '('.base64_encode(jsonStr).')';
     } else if($mode == "raw") {
         print base64_decode($cont);
     } else if ($mode == "script") {
@@ -44,9 +51,11 @@ function fetchPage($r,$f,$m,$mode) {
     $c = access_url($r);
     //$output will be written in a file.
     //$out will be printed.
+    $encoded = '';
     if ($mode == "enc") {
         $output = base64_encode($c[0]);
-        $out = "[".reverseString($output)."]";
+        $encoded .= strrev($output);
+        $out = "[".$encoded."]";
     } else if($mode == "raw") {
         $out = $c[0];
         $output = base64_encode($c[0]);
@@ -54,21 +63,38 @@ function fetchPage($r,$f,$m,$mode) {
         $output = base64_encode($c[0]);
         $out = 'eval(Base64.decode("'.$output.'"));';
     }
-    $ContentType = $c[1];
-    header("Content-type: ".$ContentType,true);
+    $hrh = $c[1];
+    if (strlen($encoded) == 0) {$encoded = strrev($output);}
+    $ContentType = getheader($hrh,"Content-type");
+    $Filename = getheader($hrh,"Filename");
+    //Generate json data
+    $arrayData = array();
+    $arrayData["Content-type"] = $ContentType;
+    $arrayData["Request-url"] = $r;
+    $arrayData["md5sum"] = md5($encoded);
+    $arrayData["Filename"] = $Filename;
+    $jsonData = json_encode($arrayData);
+    if (!$mode == "enc")
+    {
+        header("Content-type: ".$ContentType,true);
+        header("Filename: ".$Filename,true);
+    } else {
+        print "(".base64_encode($jsonData).")";
+    }
+    
     if (ENABLE_CACHE) 
     {
-        @$o = gzopen($f,GZ_WRITE_MODE);
-        @gzwrite($o,"[");gzwrite($o,$output);gzwrite($o,"]");
-        @gzwrite($o,"(");gzwrite($o,$ContentType);gzwrite($o,")");
+        $o = gzopen($f,GZ_WRITE_MODE);
+        @gzwrite($o,"[");@gzwrite($o,$output);@gzwrite($o,"]");
+        @gzwrite($o,"(");@gzwrite($o,$jsonData);@gzwrite($o,")");
         @gzclose($o);
     }
     echo $out;
 }
 
-$reqa = reverseString($rawRequest);
+$reqa = strrev($rawRequest);
 $req = base64_decode($reqa);
-$fn = "cached/".md5($req).".b64";
+$fn = CACHING_DICTIONARY."/".md5($req).".b64";
 if ($reqmode == "loader") {
     echo '<script src="base64.js"></script>'."\n";
     echo '<script src="browser.js"></script>'."\n";
@@ -87,8 +113,8 @@ if ($reqmode == "loader") {
         $query .= $kv;
     }
     $redir = $req.$query;
-    $rs = reverseString(urlsafe_b64encode($redir));
-    echo "<script>window.location = '".$h."?mode=loader&url=".$rs."';</script>";
+    $rs = strrev(urlsafe_b64encode($redir));
+    echo "<script>window.location = 'fetch.php?mode=loader&url=".$rs."';</script>";
 } else if (file_exists($fn) && $reqm == "get") {
     readCache($fn,$reqmode);
     checkCache();

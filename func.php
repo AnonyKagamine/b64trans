@@ -1,5 +1,19 @@
 <?php
-function access_url($url) {
+function access_url_fopen($url) {
+    $d = "";
+    $fo = fopen($url,'rb');
+    if($fo){
+        while(!feof($fo)) {
+            $d .= fgets($fo);
+        }
+    }
+    fclose($fo);
+    //@$nn = implode("|",$http_response_header);
+    //@$hrh = explode("|",$nn);
+    unset($nn);
+    return array($d,$http_response_header);
+}
+function access_url_curl($url) {
     $oCurl = curl_init();
     curl_setopt($oCurl,CURLOPT_URL,$url);
     curl_setopt($oCurl, CURLOPT_HEADER, true);
@@ -11,14 +25,13 @@ function access_url($url) {
     curl_close($oCurl);
     $d = substr($sContent,$headerSize+1);
     $headArr = explode("\r\n", $header);
-    foreach ($headArr as $loop) {
-        if(stripos($loop, "Content-type") !== false){
-            $ContentType = trim(substr($loop, 13));
-        }
-    }
-
-    return array($d,$ContentType);
-} 
+    return array($d,$headArr);
+}
+if (USING_CURL) {
+    function access_url($url) {return access_url_curl($url);}
+} else {
+    function access_url($url) {return access_url_fopen($url);}
+}
 function gzgetcont($f) {
     $d = "";
     $fo = gzopen($f,'r');
@@ -44,15 +57,20 @@ function urlsafe_b64decode($string) {
     }
     return base64_decode($data);
 }
-function reverseString($s)
+function getheader($headersArray,$header)
 {
-    $oldStrLength = strlen($s);
-    $newstr = "";
-    for ($i=0;$i<$oldStrLength;$i++)
-    {
-        $item = $s[$oldStrLength-$i-1];
-        $newstr .= $item;
+    $length = strlen($header);
+    $headerValue = "";
+    foreach ($headersArray as $loop) {
+        if(stripos($loop,$header) !== false){
+            $headerValue = trim(substr($loop, $length));
+            return $headerValue;
+        }
     }
-    return $newstr;
+    return $headerValue;
+}
+if (!file_exists(CACHING_DICTIONARY))
+{
+    mkdir(CACHING_DICTIONARY);
 }
 ?>
