@@ -1,9 +1,11 @@
 <?php
+//The main part of B64Trans
 define("ENABLE_CACHE",1);
 define("GZ_WRITE_MODE","w7");
 define("CACHING_DICTIONARY",'cached');
 define("USING_CURL",false);
 require "func.php";
+require "encoder.php";
 $rawRequest = $_REQUEST["url"];
 $reqm = $_REQUEST["meth"];
 $reqmode = $_REQUEST["mode"];
@@ -26,7 +28,7 @@ function readCache($fn,$mode) {
     header("Content-type: ".$ContentType,true);
     header("Filename: ".$Filename,true);
     if ($mode == "enc") {
-        print '['.strrev($cont).']';
+        print '['.encodeString($cont).']';
         print '('.base64_encode(jsonStr).')';
     } else if($mode == "raw") {
         print base64_decode($cont);
@@ -54,7 +56,7 @@ function fetchPage($r,$f,$m,$mode) {
     $encoded = '';
     if ($mode == "enc") {
         $output = base64_encode($c[0]);
-        $encoded .= strrev($output);
+        $encoded .= encodeString($output);
         $out = "[".$encoded."]";
     } else if($mode == "raw") {
         $out = $c[0];
@@ -64,7 +66,7 @@ function fetchPage($r,$f,$m,$mode) {
         $out = 'eval(Base64.decode("'.$output.'"));';
     }
     $hrh = $c[1];
-    if (strlen($encoded) == 0) {$encoded = strrev($output);}
+    if (strlen($encoded) == 0) {$encoded = encodeString($output);}
     $ContentType = getheader($hrh,"Content-type");
     $Filename = getheader($hrh,"Filename");
     //Generate json data
@@ -79,7 +81,7 @@ function fetchPage($r,$f,$m,$mode) {
         header("Content-type: ".$ContentType,true);
         header("Filename: ".$Filename,true);
     } else {
-        print "(".base64_encode($jsonData).")";
+        print "(".base64_encode($jsonData).")\n";
     }
     
     if (ENABLE_CACHE) 
@@ -92,7 +94,7 @@ function fetchPage($r,$f,$m,$mode) {
     echo $out;
 }
 
-$reqa = strrev($rawRequest);
+$reqa = decodeString($rawRequest);
 $req = base64_decode($reqa);
 $fn = CACHING_DICTIONARY."/".md5($req).".b64";
 if ($reqmode == "loader") {
@@ -113,7 +115,7 @@ if ($reqmode == "loader") {
         $query .= $kv;
     }
     $redir = $req.$query;
-    $rs = strrev(urlsafe_b64encode($redir));
+    $rs = encodeString(urlsafe_b64encode($redir));
     echo "<script>window.location = 'fetch.php?mode=loader&url=".$rs."';</script>";
 } else if (file_exists($fn) && $reqm == "get") {
     readCache($fn,$reqmode);

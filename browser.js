@@ -6,7 +6,16 @@ function reverseString(instr) {
     }
     return newstr;
 }
-function fetch(pageurl) {
+function encodeString(instr)
+{
+    return reverseString(instr);
+}
+function decodeString(instr)
+{
+    return reverseString(instr);
+}
+function fetch(pageurl)
+{
     //This piece of code is adapted from http://www.w3school.com.cn/ajax/
     var xmlhttp;
     if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
@@ -18,19 +27,26 @@ function fetch(pageurl) {
         if (xmlhttp.readyState==4 && xmlhttp.status==200) {
             var ts = xmlhttp.responseText;
             var prefixcode = '<script src="base64.js"></script><script src="browser.js"></script>' + "\n";
-            /*var insertcode = '<script>changeSrc("'+window.fetcherUrl+'","'+window.hostUrl+'");';
-            var insertcode = insertcode + "\n" + "</script>";*/
+            //var insertcode = '<script>changeSrc("'+window.fetcherUrl+'","'+window.hostUrl+'");'
+            //var insertcode = insertcode + "\n" + "</script>";
             var ind = ts.indexOf("[") + 1;
             var indd = ts.indexOf("]");
             var text = ts.slice(ind,indd);
-            var content = Base64.decode(reverseString(text));
+            if (text.length == 0)
+            {
+                alert("Fetch failed!");
+                return;
+            }
+            var content = Base64.decode(decodeString(text));
             var content = changeScripts(window.fetcherUrl,window.hostUrl,content,parseTag);
             var content = prefixcode + content;
             //alert(content);
             document.write(content);
+        } else if (xmlhttp.readyState == 4 && xmlhttp.status != 200) {
+            alert("HTTP Error :"+xmlhttp.status);
         }
     }
-    xmlhttp.open("GET","fetch.php?url="+reverseString(Base64.encodeURI(pageurl))+"&mode=enc&meth=get",true);
+    xmlhttp.open("GET","fetch.php?url="+encodeString(Base64.encodeURI(pageurl))+"&mode=enc&meth=get",true);
     xmlhttp.send();
 }
 function changeTagsAttr(tagName,attrName,flag,fetchername,host)
@@ -49,9 +65,9 @@ function changeTagsAttr(tagName,attrName,flag,fetchername,host)
             var hostArray = host.split("/").slice(0,3);
             var totalArray = hostArray.concat(tgarray);
             var totalStr = totalArray.join("/");
-            var result = fetchername + flag + reverseString(Base64.encodeURI(totalStr));
+            var result = fetchername + flag + encodeString(Base64.encodeURI(totalStr));
         } else {
-            var result = fetchername + flag + reverseString(Base64.encodeURI(temp));
+            var result = fetchername + flag + encodeString(Base64.encodeURI(temp));
         }
         eval("x." + attrName + " = result;");
     }
@@ -64,9 +80,9 @@ function encodeURLStr(fetchername,urlin,current,add)
         var hostArray = current.split("/").slice(0,3);
         var totalArray = hostArray.concat(tgarray);
         var totalStr = totalArray.join("/");
-        var result = fetchername + "?" + add +"url=" + reverseString(Base64.encodeURI(totalStr));
+        var result = fetchername + "?" + add +"url=" + encodeString(Base64.encodeURI(totalStr));
     } else if((temp.match(":"))) {
-        var result = fetchername + "?" + add + "url=" + reverseString(Base64.encodeURI(temp));
+        var result = fetchername + "?" + add + "url=" + encodeString(Base64.encodeURI(temp));
     } else {
         if (current.slice(current.length - 1) == "/")
         {
@@ -74,7 +90,7 @@ function encodeURLStr(fetchername,urlin,current,add)
         } else {
             var r = current + "/" + urlin;
         }
-        var result = fetchername + "?" + add + "url=" + reverseString(Base64.encodeURI(r));
+        var result = fetchername + "?" + add + "url=" + encodeString(Base64.encodeURI(r));
     }
     return result;
 }
@@ -141,6 +157,7 @@ function changeScripts(fetchername,currentURL,hc,parseFunc)
 }
 function changeSrc(fetchername,host) {
     //This function is used to change the target of a,link and img.
+    //However,it is no longer supported...
     /*
     changeTagsAttr("a","href","?mode=loader&url=",fetchername,host);
     changeTagsAttr("img","src","?mode=raw&meth=get&url=",fetchername,host);
