@@ -69,7 +69,7 @@ function getheader($headersArray,$header)
     }
     return $headerValue;
 }
-if (!file_exists(CACHING_DICTIONARY))
+if (!(file_exists(CACHING_DICTIONARY)))
 {
     mkdir(CACHING_DICTIONARY);
 }

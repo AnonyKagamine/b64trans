@@ -78,10 +78,10 @@ function fetchPage($r,$f,$m,$mode) {
     $jsonData = json_encode($arrayData);
     if (!$mode == "enc")
     {
+        print "(".base64_encode($jsonData).")\n";
+    } else {
         header("Content-type: ".$ContentType,true);
         header("Filename: ".$Filename,true);
-    } else {
-        print "(".base64_encode($jsonData).")\n";
     }
     
     if (ENABLE_CACHE) 
