@@ -23,7 +23,7 @@ function access_url_curl($url) {
     $headerSize = curl_getinfo($oCurl, CURLINFO_HEADER_SIZE);
     $header = substr($sContent, 0, $headerSize);
     curl_close($oCurl);
-    $d = substr($sContent,$headerSize+1);
+    $d = substr($sContent,$headerSize);
     $headArr = explode("\r\n", $header);
     return array($d,$headArr);
 }
@@ -63,7 +63,8 @@ function getheader($headersArray,$header)
     $headerValue = "";
     foreach ($headersArray as $loop) {
         if(stripos($loop,$header) !== false){
-            $headerValue = trim(substr($loop, $length));
+            $realPos = stripos($loop,':');
+            $headerValue = rtrim(trim(substr($loop, $realPos+1)));
             return $headerValue;
         }
     }
