@@ -5,7 +5,7 @@ B64trans means _Base64 Transporter_.It helps you cross the Great Firewall.
 
 
 
-##Introduction for fetch.php :
+##Introduction for fetch.php :##
 
 Generally,the URL looks like `http://example.org/fetch.php?mode=loader&meth=get&url=t92YuIWdoRXan9yL6MHc0RHa`
 For PHP it encodes like this (Called SPECIAL Base64):
@@ -31,6 +31,5 @@ There is a "meth=get",it tells the program to read from cache.
 
 Also,the `url=t92YuIWdoRXan9yL6MHc0RHa` is encoded by SPECIAL Base64.
 
-
-##Introduction for func.php:
+##Introduction for func.php:##
 It provides some functions for fetch.php .
