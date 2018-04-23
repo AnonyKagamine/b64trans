@@ -1,3 +1,8 @@
+# **UNMAINTAINED**
+we no longer have the time to maintain this, but would love to see someone take it over and continue developing it!
+
+**********
+
 >Encode a page in Base64,then push it to browser and decode it!
 
 B64trans means _Base64 Transporter_.It helps you cross the Great Firewall.
